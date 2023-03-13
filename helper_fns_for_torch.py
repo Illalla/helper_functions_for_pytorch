@@ -26,7 +26,7 @@ def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer
       model.eval()
       with torch.inference_mode():
         for X, y in test_dataloader:
-          test_pred = model_0(X)
+          test_pred = model(X)
           test_loss += loss_fn(test_pred, y)
           test_metric += metric(test_pred.argmax(dim=1), y)
         test_loss /= len(test_dataloader)
