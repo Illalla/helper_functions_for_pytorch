@@ -3,13 +3,15 @@ import matplotlib.pyplot as plt
 from torch import nn
 from tqdm.auto import tqdm
 
-def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer, metric, epochs):
+def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer, metric, epochs, device):
     """Trains a model and evaluates it. Dataloaders must be batched."""
     n_batches = len(train_dataloader)
+    model.to(device)
     for epoch in tqdm(range(epochs)):
       train_loss = 0
+      model.train()
       for batch, (X, y) in enumerate(train_dataloader):
-        model.train()
+        X, y = X.to(device), y.to(device)
         y_pred = model(X)
         loss = loss_fn(y_pred, y)
         train_loss += loss
