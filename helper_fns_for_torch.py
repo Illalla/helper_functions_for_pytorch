@@ -43,11 +43,11 @@ def show_random_images(path, class_name='*', nrows=3, ncols=3, figsize=(12, 8)):
   format 'path/*/classname/*.jpg'"""
   images_paths = list(Path(path).glob(f'*/{class_name}/*.jpg'))
   random_paths = random.sample(images_paths, k=nrows*ncols)
-  
-  fig, ax = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols)
-  for i, j in itertools.product(range(nrows), range(ncols)):
-    img_path = random_paths[i+j]
+  fig = plt.figure(figsize=figsize)
+  for i in range(nrows*ncols):
+    img_path = random_paths[i] 
     img = Image.open(img_path)
-    ax[i, j].imshow(img)
-    ax[i, j].title.set_text(f'Image size: {img.size}\nImage class: {img_path.parent.stem}')
-    ax[i, j].axis(False)
+    fig.add_subplot(nrows, ncols, i+1)
+    plt.imshow(img)
+    plt.title(f'Image size: {img.size}\nImage class: {img_path.parent.stem}')
+    plt.axis(False)
