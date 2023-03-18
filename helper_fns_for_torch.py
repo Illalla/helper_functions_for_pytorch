@@ -2,6 +2,9 @@ import torch
 import matplotlib.pyplot as plt
 from torch import nn
 from tqdm.auto import tqdm
+import itertools
+from PIL import Image
+import random
 
 def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer, metric, epochs, device):
     """Trains a model and evaluates it. Dataloaders must be batched."""
@@ -33,3 +36,18 @@ def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer
         test_loss /= len(test_dataloader)
         test_metric /= len(test_dataloader)
       print(f'\nTrain loss: {train_loss:.4f} | Test loss: {test_loss:.4f} | {str(metric)}: {test_metric:.4f}')
+
+
+def show_random_images(path, class_name='*', nrows=3, ncols=3, figsize=(12, 8)):
+  """Shows random images given path and class name. The dataset must be should be in
+  format 'path/*/classname/*.jpg'"""
+  images_paths = list(Path(path).glob(f'*/{class_name}/*.jpg'))
+  random_paths = random.sample(images_paths, k=nrows*ncols)
+  
+  fig, ax = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols)
+  for i, j in itertools.product(range(nrows), range(ncols)):
+    img_path = random_paths[i+j]
+    img = Image.open(img_path)
+    ax[i, j].imshow(img)
+    ax[i, j].title.set_text(f'Image size: {img.size}\nImage class: {img_path.parent.stem}')
+    ax[i, j].axis(False)
