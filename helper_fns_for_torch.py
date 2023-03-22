@@ -6,37 +6,54 @@ import itertools
 from PIL import Image
 import random
 
-def train_cls_model(model, train_dataloader, test_dataloader, loss_fn, optimizer, metric, epochs, device):
-    """Trains a model and evaluates it. Dataloaders must be batched."""
-    n_batches = len(train_dataloader)
-    model.to(device)
-    for epoch in tqdm(range(epochs)):
-      train_loss = 0
-      model.train()
-      for batch, (X, y) in enumerate(train_dataloader):
+def train_cls_model(model,
+                    train_dataloader,
+                    test_dataloader,
+                    optimizer,
+                    loss_fn,
+                    epochs,
+                    device):
+  model.to(device)
+  loss_curves = {'train_loss': [],
+                 'test_loss': [],
+                 'train_acc': [],
+                 'test_acc': []}
+  
+  for epoch in tqdm(range(epochs)):
+    model.train()
+    train_loss, train_acc = 0, 0
+    for X, y in train_dataloader:
+      X, y = X.to(device), y.to(device)
+      y_pred_log = model(X)
+      y_pred_class = torch.softmax(y_pred_log, dim=1).argmax(dim=1)
+      loss = loss_fn(y_pred_log, y)
+      train_loss += loss
+      optimizer.zero_grad()
+      loss.backward()
+      optimizer.step()
+      train_acc += (y_pred_class == y).sum()/len(y)
+    train_loss /= len(train_dataloader)
+    train_acc /= len(train_dataloader)
+    loss_curves['train_loss'].append(train_loss)
+    loss_curves['train_acc'].append(train_acc)
+    
+    model.eval()
+    test_loss, test_acc = 0, 0
+    with torch.inference_mode():
+      for X, y in test_dataloader:
         X, y = X.to(device), y.to(device)
-        y_pred = model(X)
-        loss = loss_fn(y_pred, y)
-        train_loss += loss
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if batch % int(0.1*n_batches) == 0 :
-          print(f'Batch: {batch}/{n_batches}')
-      train_loss /= len(train_dataloader)
-
-      test_loss, test_metric = 0, 0
-      model.eval()
-      with torch.inference_mode():
-        for X, y in test_dataloader:
-          X, y = X.to(device), y.to(device)
-          test_pred = model(X)
-          test_loss += loss_fn(test_pred, y)
-          test_metric += metric(test_pred.argmax(dim=1), y)
-        test_loss /= len(test_dataloader)
-        test_metric /= len(test_dataloader)
-      print(f'\nTrain loss: {train_loss:.4f} | Test loss: {test_loss:.4f} | {str(metric)}: {test_metric:.4f}')
-
+        test_pred_log = model(X)
+        loss = loss_fn(test_pred_log, y)
+        test_loss += loss
+        test_pred_class = torch.softmax(y_pred_log, dim=1).argmax(dim=1)
+        test_acc += (test_pred_class == y).sum()/len(y)
+      test_loss = test_loss / len(test_dataloader)
+      test_acc = test_acc / len(test_dataloader)
+      loss_curves['test_loss'].append(test_loss)
+      loss_curves['test_acc'].append(test_acc)
+    print(f'Epoch: {epoch+1}\n train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f}'
+    f' | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}')
+  return loss_curves
 
 def show_random_images(path, class_name='*', nrows=3, ncols=3, figsize=(12, 8)):
   """Shows random images given path and class name. The dataset must be should be in
