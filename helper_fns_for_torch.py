@@ -57,10 +57,10 @@ def train_cls_model(model,
                     train_dataloader,
                     test_dataloader,
                     optimizer,
-                    scheduler=None,
                     loss_fn,
                     epochs,
-                    device):
+                    device='cpu',
+                    scheduler=None):
   model.to(device)
   loss_curves = {'train_loss': [],
                  'test_loss': [],
