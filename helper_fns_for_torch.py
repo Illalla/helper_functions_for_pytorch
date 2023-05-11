@@ -56,6 +56,7 @@ def train_cls_model(model,
                     train_dataloader,
                     test_dataloader,
                     optimizer,
+                    scheduler=None,
                     loss_fn,
                     epochs,
                     device):
@@ -99,6 +100,8 @@ def train_cls_model(model,
       loss_curves['test_acc'].append(test_acc)
     print(f'Epoch: {epoch+1}\n train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f}'
     f' | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}')
+    if scheduler:
+        scheduler.step()
   return loss_curves
 
 def show_random_images(path, class_name='*', nrows=3, ncols=3, figsize=(12, 8)):
