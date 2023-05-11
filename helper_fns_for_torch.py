@@ -8,6 +8,7 @@ import itertools
 from PIL import Image
 import random
 import os
+from pathlib import Path
 
 def create_dataloaders_from_directory(
     train_dir: str,
