@@ -71,7 +71,7 @@ def train_cls_model(model,
     for X, y in train_dataloader:
       X, y = X.to(device), y.to(device)
       y_pred_log = model(X)
-      y_pred_class = torch.softmax(y_pred_log, dim=1).argmax(dim=1)
+      y_pred_class = torch.softmax(test_pred_log, dim=1).argmax(dim=1)
       loss = loss_fn(y_pred_log, y)
       train_loss += loss
       optimizer.zero_grad()
@@ -91,7 +91,7 @@ def train_cls_model(model,
         test_pred_log = model(X)
         loss = loss_fn(test_pred_log, y)
         test_loss += loss
-        test_pred_class = torch.softmax(y_pred_log, dim=1).argmax(dim=1)
+        test_pred_class = torch.softmax(test_pred_log, dim=1).argmax(dim=1)
         test_acc += (test_pred_class == y).sum()/len(y)
       test_loss = test_loss / len(test_dataloader)
       test_acc = test_acc / len(test_dataloader)
