@@ -118,3 +118,39 @@ def show_random_images(path, class_name='*', nrows=3, ncols=3, figsize=(12, 8)):
     plt.imshow(img)
     plt.title(f'Image size: {img.size}\nImage class: {img_path.parent.stem}')
     plt.axis(False)
+    
+def plot_loss_curves(results, figsize=(13, 6)):
+    """Plots loss and accuracy curves of a results dictionary.
+
+    Args:
+        results (dict): dictionary containing list of values:
+            {"train_loss": [...],
+             "train_acc": [...],
+             "test_loss": [...],
+             "test_acc": [...]}
+        figsiez (tuple): a tuple defining figure size
+          default: (13, 6)
+    """
+    loss = results["train_loss"]
+    test_loss = results["test_loss"]
+
+    accuracy = results["train_acc"]
+    test_accuracy = results["test_acc"]
+
+    epochs = range(len(results["train_loss"]))
+
+    plt.figure(figsize=figsize)
+
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, loss, label="train_loss")
+    plt.plot(epochs, test_loss, label="test_loss")
+    plt.title("Loss")
+    plt.xlabel("Epochs")
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, accuracy, label="train_accuracy")
+    plt.plot(epochs, test_accuracy, label="test_accuracy")
+    plt.title("Accuracy")
+    plt.xlabel("Epochs")
+    plt.legend()
