@@ -53,6 +53,7 @@ def create_dataloaders_from_directory(
   
   return train_dataloader, test_dataloader, class_names
 
+from tqdm.auto import tqdm
 def train_cls_model(model,
                     train_dataloader,
                     test_dataloader,
@@ -82,8 +83,8 @@ def train_cls_model(model,
       train_acc += (y_pred_class == y).sum()/len(y)
     train_loss /= len(train_dataloader)
     train_acc /= len(train_dataloader)
-    loss_curves['train_loss'].append(train_loss)
-    loss_curves['train_acc'].append(train_acc)
+    loss_curves['train_loss'].append(train_loss.cpu().numpy())
+    loss_curves['train_acc'].append(train_acc.cpu().numpy())
     
     model.eval()
     test_loss, test_acc = 0, 0
@@ -97,8 +98,8 @@ def train_cls_model(model,
         test_acc += (test_pred_class == y).sum()/len(y)
       test_loss = test_loss / len(test_dataloader)
       test_acc = test_acc / len(test_dataloader)
-      loss_curves['test_loss'].append(test_loss)
-      loss_curves['test_acc'].append(test_acc)
+      loss_curves['test_loss'].append(test_loss.cpu().numpy())
+      loss_curves['test_acc'].append(test_acc.cpu().numpy())
     print(f'Epoch: {epoch+1}\n train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f}'
     f' | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}')
     if scheduler:
